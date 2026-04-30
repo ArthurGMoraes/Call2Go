@@ -12,7 +12,7 @@ Call2Go/
 ├── src/
 |   ├── config.py      <- parâmetros e chaves de API
 |   ├── collector.py   <- coleta YouTube + Twitch
-|   ├── metrics.py     <- cálculo de ritmo, score, correlação, flywheel
+|   ├── metrics.py     <- cálculo de ritmo e score
 |   ├── charts.py      <- geração de gráficos
 |   └── main.py        <- pipeline principal
 ├── data/
