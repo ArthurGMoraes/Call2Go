@@ -48,7 +48,7 @@ export TWITCH_CLIENT_SECRET="SEU_CLIENT_SECRET_TWITCH"
 
 **Como obter as chaves:**
 - **YouTube**: [console.developers.google.com](https://console.developers.google.com) -> crie um projeto -> ative "YouTube Data API v3" -> Credenciais -> API Key
-- **Twitch**: [dev.twitch.tv/console](https://dev.twitch.tv/console) → Register Your Application → Client ID + Client Secret
+- **Twitch**: [dev.twitch.tv/console](https://dev.twitch.tv/console) -> Register Your Application -> Client ID + Client Secret
 
 ### 3. Formato do CSV
 
