@@ -23,10 +23,11 @@ def calcular_intervalos(posts: list[dict]) -> list[float]:
         return []
 
     datas = [p["publicado_em"] for p in posts]
-    return [
-        (datas[i+1] - datas[i]).total_seconds() / 86400
-        for i in range(len(datas) - 1)
-    ]
+    deltas = []
+    for i in range(len(datas) - 1):
+        diff = datas[i+1] - datas[i]
+        deltas.append(diff.total_seconds() / 86400)
+    return deltas
 
 
 def resumo_intervalos(deltas: list[float]) -> dict:
@@ -50,9 +51,8 @@ def _posts_na_janela(posts: list[dict], inicio: datetime, fim: datetime) -> list
 
 def _score_janela_yt(posts_janela: list[dict], subscribers: int) -> float:
     """
-    score_yt = regularidade × log10(subscribers+1) × taxa_engajamento_media
+    score_yt = regularidade × avg_views/subscribers
     regularidade = 1 / (1 + σ_Δt)  — quanto menor o desvio, mais perto de 1
-    taxa_engajamento = likes / views por vídeo (média da janela)
     """
     if not posts_janela or subscribers <= 0:
         return 0.0
@@ -61,21 +61,16 @@ def _score_janela_yt(posts_janela: list[dict], subscribers: int) -> float:
     desvio = statistics.stdev(deltas) if len(deltas) > 1 else 0.0
     regularidade = 1.0 / (1.0 + desvio)
 
-    taxas = []
-    for p in posts_janela:
-        if p["views"] > 0:
-            taxas.append(p["likes"] / p["views"])
+    avg_views = statistics.mean(p["views"] for p in posts_janela)
+    taxa_penetracao = avg_views/subscribers
 
-    taxa_eng = statistics.mean(taxas) if taxas else 0.0
-
-    return regularidade * math.log10(subscribers + 1) * taxa_eng
+    return regularidade * taxa_penetracao
 
 
 def _score_janela_tw(posts_janela: list[dict], followers: int) -> float:
     """
-    score_tw = regularidade × log10(followers+1) × avg_viewers_normalizado
-    avg_viewers_normalizado = média de views da janela / log10(followers+1)
-    Isso nivela a comparação com o YT (views acumulado vs. audiência simultânea).
+    score_tw = regularidade × avg_views/followers
+    regularidade = 1 / (1 + σ_Δt)  — quanto menor o desvio, mais perto de 1
     """
     if not posts_janela or followers <= 0:
         return 0.0
@@ -85,14 +80,9 @@ def _score_janela_tw(posts_janela: list[dict], followers: int) -> float:
     regularidade = 1.0 / (1.0 + desvio)
 
     avg_views = statistics.mean(p["views"] for p in posts_janela)
-    log_followers = math.log10(followers + 1)
+    taxa_penetracao = avg_views/followers
 
-    # Normalização: divide avg_views por log(followers) para tornar comparável
-    avg_normalizado = avg_views / log_followers if log_followers > 0 else 0.0
-    # Escala para faixa similar ao score YT (taxa ~0–1)
-    avg_normalizado_scaled = math.log10(avg_normalizado + 1) / 10.0
-
-    return regularidade * log_followers * avg_normalizado_scaled
+    return regularidade * taxa_penetracao
 
 
 def calcular_serie_scores(
@@ -218,7 +208,7 @@ def analisar_criador(criador: dict) -> dict:
             "tw_serie":       serie_tw,
         })
 
-    # ── Cross-platform ────────────────────────────────────────────────────────
+    #  Cross-platform 
     if resultado["yt_delta_medio"] and resultado["tw_delta_medio"]:
         ratio = calcular_ritmo_relativo(
             resultado["yt_delta_medio"],
