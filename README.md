@@ -86,6 +86,7 @@ Tabela com uma linha por criador contendo:
 | `tw_delta_medio` | Intervalo médio entre lives (dias)             |
 | `ratio_delta`*   | `Δt_yt / Δt_tw` — equilíbrio de cadência       |
 | `perfil`         | Classificação do criador (ver abaixo)          |
+
 *ratio>1 = mais presença na twitch, ratio<1 = mais presença no yt e ratio = 1 equilíbrio
 
 ### Perfis possíveis
