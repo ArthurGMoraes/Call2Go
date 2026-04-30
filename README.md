@@ -113,9 +113,4 @@ Tabela com uma linha por criador contendo:
 | `MAX_VIDEOS_YT`      | 90     | Máximo de vídeos buscados por canal    |
 | `MAX_STREAMS_TWITCH` | 90     | Máximo de VODs buscados por canal      |
 
----
 
-## Notas sobre normalização
-Views no YouTube (acumulado) e viewers na Twitch (simultâneo) são grandezas diferentes.
-O `score_tw` divide o avg_viewers por `log10(followers)` antes de compor o score,
-tornando a comparação mais justa entre plataformas.
