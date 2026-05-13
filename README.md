@@ -60,6 +60,7 @@ Exemplo: Cellbit;https://www.youtube.com/@CellbitLives;https://www.twitch.tv/cel
 - Separador: `;`
 - `link_twitch` e `link_youtube` são opcionais
 - `infantil`: `s` ou `n`
+- `link_youtube` preferencialmente no formato `youtube.com/@user` que pode ser achado na descrição do canal, já que outros formatos são imprevisíveis quando resolvemos o ID. 
 
 ---
 
