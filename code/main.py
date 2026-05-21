@@ -30,9 +30,9 @@ import pandas as pd
 # Garante que src/ está no path quando rodado de qualquer lugar
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from config import ARQUIVO_CSV, RESULTS_DIR
+from config import ARQUIVO_CSV, RESULTS_DIR, COLUNAS_CSV
 from collector import coletar_criador
-from metrics import analisar_criador
+from metrics import analisar_criador, calcular_flow_lista
 from charts import gerar_todos_graficos
 
 
@@ -43,15 +43,6 @@ def carregar_csv(caminho: str) -> list[dict]:
     df = df.fillna("").map(str.strip)
     df = df[df["nome_influencer"].ne("")].reset_index(drop=True)
     return df.to_dict(orient="records")
-
-# CSV resultados
-COLUNAS_CSV = [
-    "nome", "jogo", "infantil",
-    "yt_subscribers", "yt_n_posts", "yt_delta_medio", "yt_delta_desvio", "yt_score_medio",
-    "tw_followers",   "tw_n_posts", "tw_delta_medio", "tw_delta_desvio", "tw_score_medio",
-    "ratio_delta", "perfil",
-]
-
 
 def exportar_csv(resultados: list[dict]) -> None:
     os.makedirs(RESULTS_DIR, exist_ok=True)
@@ -90,6 +81,8 @@ def main():
     # Análise de métricas
     print("-Calculando métricas")
     resultados = [analisar_criador(d) for d in dados_brutos]
+    
+    calcular_flow_lista(resultados)
 
     # Exportar
     exportar_csv(resultados)

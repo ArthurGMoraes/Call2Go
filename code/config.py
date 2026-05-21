@@ -51,3 +51,11 @@ PLATAFORMAS = {
     "Twitch":  "link_twitch",
     "Discord": "link_discord",
 }
+
+# CSV resultados
+COLUNAS_CSV = [
+    "nome", "jogo", "infantil",
+    "yt_subscribers", "yt_n_posts", "yt_delta_medio", "yt_delta_desvio", "yt_score_medio",
+    "tw_followers",   "tw_n_posts", "tw_delta_medio", "tw_delta_desvio", "tw_score_medio",
+    "ratio_delta", "perfil", "flow",
+]

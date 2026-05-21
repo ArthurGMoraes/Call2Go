@@ -49,25 +49,7 @@ def _posts_na_janela(posts: list[dict], inicio: datetime, fim: datetime) -> list
     return [p for p in posts if inicio <= p["publicado_em"] < fim]
 
 
-def _score_janela_yt(posts_janela: list[dict], subscribers: int) -> float:
-    """
-    score_yt = regularidade × avg_views/subscribers
-    regularidade = 1 / (1 + σ_Δt)  — quanto menor o desvio, mais perto de 1
-    """
-    if not posts_janela or subscribers <= 0:
-        return 0.0
-
-    deltas = calcular_intervalos(posts_janela)
-    desvio = statistics.stdev(deltas) if len(deltas) > 1 else 0.0
-    regularidade = 1.0 / (1.0 + desvio)
-
-    avg_views = statistics.mean(p["views"] for p in posts_janela)
-    taxa_penetracao = avg_views/subscribers
-
-    return regularidade * taxa_penetracao
-
-
-def _score_janela_tw(posts_janela: list[dict], followers: int) -> float:
+def _score_janela(posts_janela: list[dict], followers: int, desvio: float) -> float:
     """
     score_tw = regularidade × avg_views/followers
     regularidade = 1 / (1 + σ_Δt)  — quanto menor o desvio, mais perto de 1
@@ -88,9 +70,7 @@ def _score_janela_tw(posts_janela: list[dict], followers: int) -> float:
 def calcular_serie_scores(
     posts: list[dict],
     audiencia: int,
-    plataforma: str,
-    data_inicio: Optional[datetime] = None,
-    data_fim:    Optional[datetime] = None,
+    desvio: float
 ) -> list[dict]:
     """
     Gera série temporal de scores em janelas de JANELA_DIAS dias.
@@ -105,12 +85,10 @@ def calcular_serie_scores(
     serie = []
     cursor = data_inicio
 
-    fn_score = _score_janela_yt if plataforma == "youtube" else _score_janela_tw
-
     while cursor < data_fim:
         fim_janela  = cursor + timedelta(days=JANELA_DIAS)
         posts_jan   = _posts_na_janela(posts, cursor, fim_janela)
-        score       = fn_score(posts_jan, audiencia)
+        score       = _score_janela(posts_jan, audiencia, desvio)
 
         serie.append({
             "janela_inicio": cursor,
@@ -137,6 +115,32 @@ def calcular_ritmo_relativo(delta_medio_yt: Optional[float], delta_medio_tw: Opt
     if delta_medio_tw == 0:
         return None
     return delta_medio_yt / delta_medio_tw
+
+def calcular_flow(score_yt, score_tw, ratio, max_yt, max_tw):
+    if any(v is None for v in [score_yt, score_tw, ratio, max_yt, max_tw]):
+        return None
+    if max_yt == 0 or max_tw == 0:
+        return None
+
+    yt_norm = score_yt / max_yt  
+    tw_norm = score_tw / max_tw  
+
+    balance = min(yt_norm, tw_norm) / max(yt_norm, tw_norm)
+    fratio  = 1 / (1 + abs(ratio - 1))
+    return balance * fratio
+
+def calcular_flow_lista(resultados: list[dict]) -> None:
+    max_yt = max((r["yt_score_medio"] or 0) for r in resultados)
+    max_tw = max((r["tw_score_medio"] or 0) for r in resultados)
+
+    print(f"max_yt: {max_yt}")
+    print(f"max_tw:  {max_tw}")
+
+    for r in resultados:
+        r["flow"] = calcular_flow(
+            r["yt_score_medio"], r["tw_score_medio"],
+            r["ratio_delta"], max_yt, max_tw
+        )
 
 
 # Análise por criador
@@ -170,6 +174,7 @@ def analisar_criador(criador: dict) -> dict:
         # Cross-platform
         "ratio_delta":    None,
         "perfil":         "sem dados",
+        "flow":           None
     }
 
     # YouTube
@@ -178,7 +183,7 @@ def analisar_criador(criador: dict) -> dict:
         subs     = yt_data["subscribers"]
         deltas   = calcular_intervalos(posts_yt)
         res_int  = resumo_intervalos(deltas)
-        serie_yt = calcular_serie_scores(posts_yt, subs, "youtube")
+        serie_yt = calcular_serie_scores(posts_yt, subs, res_int["desvio"])
         scores   = [s["score"] for s in serie_yt if s["n_posts"] > 0]
 
         resultado.update({
@@ -217,9 +222,10 @@ def analisar_criador(criador: dict) -> dict:
         resultado.update({
             "ratio_delta":    ratio,
         })
-
+   
     #Profile
     resultado["perfil"] = _classificar_perfil(resultado)
+
 
     return resultado
 
