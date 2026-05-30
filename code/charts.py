@@ -35,8 +35,8 @@ def _salvar(fig, nome_arquivo: str) -> None:
 
 def _aplicar_estilo(ax, titulo: str) -> None:
     ax.set_facecolor(FUNDO2)
-    ax.tick_params(colors=TEXTO, labelsize=9)
-    ax.set_title(titulo, color=DESTAQUE, fontsize=12, fontweight="bold", pad=12,
+    ax.tick_params(colors=TEXTO, labelsize=20)
+    ax.set_title(titulo, color=DESTAQUE, fontsize=20, fontweight="bold", pad=20,
                  fontfamily="monospace")
     for spine in ax.spines.values():
         spine.set_edgecolor(BORDA)
@@ -46,8 +46,8 @@ def _aplicar_estilo(ax, titulo: str) -> None:
 
 def _aplicar_estilo_eixo(ax, titulo: str) -> None:
     ax.set_facecolor(FUNDO2)
-    ax.tick_params(colors=TEXTO, labelsize=10)
-    ax.set_title(titulo, color=DESTAQUE, fontsize=13, fontweight="bold", pad=14)
+    ax.tick_params(colors=TEXTO, labelsize=20)
+    ax.set_title(titulo, color=DESTAQUE, fontsize=20, fontweight="bold", pad=20)
     for spine in ax.spines.values():
         spine.set_edgecolor(BORDA)
     ax.title.set_fontfamily("monospace")
@@ -97,7 +97,7 @@ def gerar_tabela(df: pd.DataFrame) -> None:
     ).drop(columns="freq_jogo")
 
     def icone(url): return "✔" if str(url).strip() else "·"
-    def inf_label(v): return "Sim" if v else "Não"
+    def inf_label(v): return "Yes" if v else "No"
 
     linhas = [
         [row["nome_influencer"], row["nome_jogo"],
@@ -106,7 +106,7 @@ def gerar_tabela(df: pd.DataFrame) -> None:
         for _, row in df.iterrows()
     ]
 
-    colunas = ["Influencer", "Jogo", "YouTube", "Twitch", "Discord", "Infantil"]
+    colunas = ["Name", "Game", "YouTube", "Twitch", "Discord", "Kids"]
     fig, ax = plt.subplots(figsize=(13, max(3.5, 0.45 * len(linhas) + 1.5)), facecolor=FUNDO)
     ax.set_facecolor(FUNDO)
     ax.axis("off")
@@ -125,7 +125,7 @@ def gerar_tabela(df: pd.DataFrame) -> None:
             cell.set_facecolor(DESTAQUE)
             cell.set_text_props(color=FUNDO, fontweight="bold", fontsize=10)
         elif ri % 2 == 0:
-            cell.set_facecolor("#16161f")
+            cell.set_facecolor(FUNDO)
             cell.set_text_props(color=TEXTO)
         else:
             cell.set_facecolor(FUNDO2)
@@ -136,13 +136,13 @@ def gerar_tabela(df: pd.DataFrame) -> None:
         if ri > 0 and ci in (2, 3, 4):
             cell.set_text_props(color="#C8FF00" if linhas[ri-1][ci] == "✔" else "#555566")
         if ri > 0 and ci == 5:
-            cell.set_text_props(color="#FFD166" if linhas[ri-1][5] == "Sim" else TEXTO)
+            cell.set_text_props(color="#FFD166" if linhas[ri-1][5] == "Yes" else TEXTO)
 
-    fig.suptitle("LISTA DE INFLUENCERS", color=DESTAQUE, fontsize=14,
+    fig.suptitle("Creators", color=DESTAQUE, fontsize=20,
                  fontweight="bold", fontfamily="monospace", y=0.98)
     fig.text(0.5, 0.01,
-             f"Total: {len(df)}  |  Infantis: {df['infantil'].sum()}  |  Adultos: {(~df['infantil']).sum()}",
-             ha="center", color=TEXTO, fontsize=9, alpha=0.6)
+             f"Total: {len(df)}  |  Kid: {df['infantil'].sum()}  |  Adult: {(~df['infantil']).sum()}",
+             ha="center", color=TEXTO, fontsize=20, alpha=0.6)
     _salvar(fig, "tabela_influencers.png")
 
 
@@ -179,19 +179,19 @@ def _grafico_plataforma_infantil(ax, df: pd.DataFrame) -> None:
     plataformas = list(PLATAFORMAS.keys())
     x, acumulado = range(len(plataformas)), [0] * len(plataformas)
 
-    for label, flag, cor in [("Adulto", False, "#4B9CD3"), ("Infantil", True, "#FFD166")]:
+    for label, flag, cor in [("Adult", False, "#4B9CD3"), ("Kids", True, "#FFD166")]:
         valores = [df[(df[f"tem_{p}"] == 1) & (df["infantil"] == flag)].shape[0] for p in plataformas]
         barras  = ax.bar(list(x), valores, width=0.5, bottom=acumulado,
                          color=cor, label=label, edgecolor=FUNDO, linewidth=1.0)
         for b, v, base in zip(barras, valores, acumulado):
             if v > 0:
                 ax.text(b.get_x() + b.get_width() / 2, base + v / 2, str(v),
-                        ha="center", va="center", color=FUNDO, fontsize=11, fontweight="bold")
+                        ha="center", va="center", color=TEXTO, fontsize=20, fontweight="bold")
         acumulado = [a + v for a, v in zip(acumulado, valores)]
 
     for xi, total in zip(x, acumulado):
         ax.text(xi, total + 0.15, str(total), ha="center", va="bottom",
-                color=TEXTO, fontsize=10, fontweight="bold")
+                color=TEXTO, fontsize=20, fontweight="bold")
 
     max_total = max(acumulado) if acumulado else 1
     ax.set_ylim(0, max_total * 1.25)
@@ -201,61 +201,156 @@ def _grafico_plataforma_infantil(ax, df: pd.DataFrame) -> None:
     for tick, plat in zip(ax.get_xticklabels(), plataformas):
         tick.set_color(CORES_PLATAFORMA[plat])
         tick.set_fontweight("bold")
-        tick.set_fontsize(11)
-    ax.set_ylabel("Nº de Influencers", color=TEXTO, fontsize=10)
+        tick.set_fontsize(20)
+    ax.set_ylabel("Number of creators", color=TEXTO, fontsize=20)
     ax.yaxis.grid(True, color=BORDA, linestyle="--", alpha=0.5)
     ax.set_axisbelow(True)
-    ax.legend(facecolor=FUNDO, edgecolor=BORDA, labelcolor=TEXTO, fontsize=9, loc="upper right")
-    _aplicar_estilo_eixo(ax, "Plataforma × Conteúdo Infantil")
+    ax.legend(facecolor=FUNDO, edgecolor=BORDA, labelcolor=TEXTO, fontsize=20, loc="upper right")
+    _aplicar_estilo_eixo(ax, "Plataform × Kids-content")
 
 
 def gerar_graficos(df: pd.DataFrame) -> None:
     plt.rcParams.update({"font.family": "monospace", "figure.facecolor": FUNDO,
                           "axes.facecolor": FUNDO2, "text.color": TEXTO})
     fig = plt.figure(figsize=(20, 12), facecolor=FUNDO)
-    fig.suptitle("DASHBOARD DE INFLUENCERS", color=DESTAQUE, fontsize=18,
+    fig.suptitle("DASHBOARD DE INFLUENCERS", color=DESTAQUE, fontsize=20,
                  fontweight="bold", fontfamily="monospace", y=0.98)
     gs  = GridSpec(1, 2, figure=fig, wspace=0.35, left=0.07, right=0.97, top=0.91, bottom=0.08)
     _grafico_plataforma_infantil(fig.add_subplot(gs[0, 0]), df)
     _grafico_por_jogo(fig.add_subplot(gs[0, 1]), df)
     fig.text(0.5, 0.02, f"Total de influencers analisados: {len(df)}",
-             ha="center", color=TEXTO, fontsize=9, alpha=0.6)
+             ha="center", color=TEXTO, fontsize=20, alpha=0.6)
     _salvar(fig, "relatorio_plataformas.png")
 
 
 #Ranking de scores YT × Twitch
 def grafico_ranking_scores(resultados: list[dict]) -> None:
-    dados = sorted(
-        [r for r in resultados if (r["yt_score_medio"] or 0) + (r["tw_score_medio"] or 0) > 0],
-        key=lambda r: (r["yt_score_medio"] or 0) + (r["tw_score_medio"] or 0), reverse=True
+
+    #YOUTUBE
+    dados_yt = sorted(
+        [r for r in resultados if (r["yt_score_medio"] or 0) > 0],
+        key=lambda r: r["yt_score_medio"], reverse=True
     )
-    nomes     = [r["nome"] for r in dados]
-    scores_yt = [r["yt_score_medio"] or 0 for r in dados]
-    scores_tw = [r["tw_score_medio"] or 0 for r in dados]
-    x, lw     = range(len(nomes)), 0.35
+    nomes_yt  = [r["nome"] for r in dados_yt]
+    scores_yt = [r["yt_score_medio"] for r in dados_yt]
+    x_yt      = range(len(nomes_yt))
 
-    fig, ax = plt.subplots(figsize=(max(12, len(nomes) * 0.6), 6), facecolor=FUNDO)
-    fig.suptitle("RANKING DE SCORES POR PLATAFORMA", color=DESTAQUE,
+    fig, ax = plt.subplots(figsize=(max(12, len(nomes_yt) * 0.6), 8), facecolor=FUNDO)
+    fig.suptitle("RANKING DE SCORES — YOUTUBE", color=DESTAQUE,
                  fontsize=15, fontweight="bold", fontfamily="monospace")
-    ax.bar([xi - lw/2 for xi in x], scores_yt, width=lw,
-           color=CORES_PLATAFORMA["YouTube"], label="YouTube", edgecolor=FUNDO, linewidth=0.8)
-    ax.bar([xi + lw/2 for xi in x], scores_tw, width=lw,
-           color=CORES_PLATAFORMA["Twitch"], label="Twitch", edgecolor=FUNDO, linewidth=0.8)
-    ax.set_xticks(list(x))
-    ax.set_xticklabels(nomes, rotation=35, ha="right", color=TEXTO, fontsize=8)
-    ax.set_ylabel("Score médio", color=TEXTO)
-    ax.legend(facecolor=FUNDO, edgecolor=BORDA, labelcolor=TEXTO, fontsize=9)
-    _aplicar_estilo(ax, "Score médio por criador")
 
-    CORES_PERFIL = {"flywheel-ativo": DESTAQUE, "yt-first": CORES_PLATAFORMA["YouTube"],
-                    "twitch-first": CORES_PLATAFORMA["Twitch"],
-                    "biplatforma-desconectado": "#AAAAAA", "dormente": "#555566"}
-    for xi, r in zip(x, dados):
-        topo = max(scores_yt[xi], scores_tw[xi]) + 0.001
-        ax.text(xi, topo, r.get("perfil", "").replace("-", "\n"),
-                ha="center", va="bottom", color=CORES_PERFIL.get(r.get("perfil", ""), TEXTO),
-                fontsize=6, alpha=0.8)
-    _salvar(fig, "ranking_scores.png")
+    barras = ax.bar(list(x_yt), scores_yt, width=0.6,
+                    color=CORES_PLATAFORMA["YouTube"],
+                    edgecolor=FUNDO, linewidth=0.8)
+
+    for barra, v in zip(barras, scores_yt):
+        ax.text(barra.get_x() + barra.get_width() / 2,
+                barra.get_height() + 0.002,
+                f"{v:.3f}", ha="center", va="bottom",
+                color=TEXTO, fontsize=11, alpha=0.8, rotation=25)
+
+    ax.set_xticks(list(x_yt))
+    ax.set_xticklabels(nomes_yt, rotation=35, ha="right", color=TEXTO, fontsize=8)
+    ax.set_ylabel("Score médio", color=TEXTO)
+    _aplicar_estilo(ax, "Score médio por criador — YouTube")
+    _salvar(fig, "ranking_scores_yt.png")
+
+    #Twitch
+    dados_tw = sorted(
+        [r for r in resultados if (r["tw_score_medio"] or 0) > 0],
+        key=lambda r: r["tw_score_medio"], reverse=True
+    )
+    nomes_tw  = [r["nome"] for r in dados_tw]
+    scores_tw = [r["tw_score_medio"] for r in dados_tw]
+    x_tw      = range(len(nomes_tw))
+
+    fig2, ax2 = plt.subplots(figsize=(max(12, len(nomes_tw) * 0.70), 8), facecolor=FUNDO)
+    fig2.suptitle("RANKING DE SCORES — TWITCH", color=DESTAQUE,
+                  fontsize=15, fontweight="bold", fontfamily="monospace")
+
+    barras2 = ax2.bar(list(x_tw), scores_tw, width=0.6,
+                      color=CORES_PLATAFORMA["Twitch"],
+                      edgecolor=FUNDO, linewidth=0.8)
+
+    for barra, v in zip(barras2, scores_tw):
+        ax2.text(barra.get_x() + barra.get_width() / 2,
+                 barra.get_height() + 0.002,
+                 f"{v:.3f}", ha="center", va="bottom",
+                 color=TEXTO, fontsize=11, alpha=0.8, rotation=25)
+
+    ax2.set_xticks(list(x_tw))
+    ax2.set_xticklabels(nomes_tw, rotation=35, ha="right", color=TEXTO, fontsize=8)
+    ax2.set_ylabel("Score médio", color=TEXTO)
+    _aplicar_estilo(ax2, "Score médio por criador — Twitch")
+    _salvar(fig2, "ranking_scores_tw.png")
+
+# Grafico ratio delta 
+def grafico_ratio(resultados: list[dict]) -> None:
+    data = [r for r in resultados if (r["ratio_delta"] or 0) > 0]
+
+    nomes = [r["nome"] for r in data]
+    ratio = [r["ratio_delta"] for r in data]
+
+    ratio_log = [math.log2(r) for r in ratio]
+
+    y = range(len(nomes))
+
+    fig, ax = plt.subplots(
+        figsize=(20, max(6, len(nomes) * 0.4)),
+        facecolor=FUNDO
+    )
+
+    fig.suptitle(
+        "RATIO DELTA",
+        color=DESTAQUE,
+        fontsize=15,
+        fontweight="bold",
+        fontfamily="monospace"
+    )
+
+    cor = [CORES_PLATAFORMA["Twitch"] if r > 1 else CORES_PLATAFORMA["YouTube"] for r in ratio]
+
+    barras = ax.barh(
+        y,
+        ratio_log,
+        color = cor,
+        edgecolor=FUNDO,
+        linewidth=0.8
+    )
+
+    # linha de equilíbrio
+    ax.axvline(
+        0,
+        color=TEXTO,
+        linestyle="--",
+        linewidth=1.5,
+        alpha=0.8
+    )
+
+    # valores
+    for barra, ratio_original, log_valor in zip(barras, ratio, ratio_log):
+        ax.text(
+            log_valor + (0.05 if log_valor >= 0 else -0.05),
+            barra.get_y() + barra.get_height() / 2,
+            f"{ratio_original:.3f}",
+            va="center",
+            ha="left" if log_valor >= 0 else "right",
+            color=TEXTO,
+            fontsize=12
+        )
+
+    ax.set_xticks([-3, -2, -1, 0, 1, 2, 3])
+    ax.set_xticklabels(["8x", "4x", "2x", "1.0\n(balanced)", "2x", "4x", "8x"], color=TEXTO, fontsize=3)
+
+    ax.set_yticks(list(y))
+    ax.set_yticklabels(nomes, color=TEXTO, fontsize=3)
+
+    ax.set_xlabel("Ratio Delta", color=TEXTO)
+
+    _aplicar_estilo(ax, "Ratio Delta")
+    _salvar(fig, "ratio.png")
+
+
 
 
 
@@ -269,6 +364,7 @@ def gerar_todos_graficos(resultados: list[dict], caminho_csv: str) -> None:
     gerar_tabela(df)
     gerar_graficos(df)
     grafico_ranking_scores(resultados)
+    grafico_ratio(resultados)
 
 
 #Se quiser gerar os gráficos sem "refazer" os dados
