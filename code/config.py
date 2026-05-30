@@ -29,9 +29,9 @@ MAX_VIDEOS_YT      = 90    # máximo de vídeos buscados por canal no YT
 MAX_STREAMS_TWITCH = 90   # máximo de VODs/streams buscados por canal na Twitch
 
 # Cores para gráficos
-FUNDO    = "#0F0F14"
-FUNDO2   = "#1A1A24"
-TEXTO    = "#E8E8F0"
+FUNDO    = "#FFFFFF"
+FUNDO2   = "#FFFFFFB8"
+TEXTO    = "#000000"
 DESTAQUE = "#C8FF00"
 BORDA    = "#2E2E42"
 
