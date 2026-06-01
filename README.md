@@ -18,7 +18,9 @@ Call2Go/
 ├── data/
 │   └── influencers.csv          <- seu CSV de entrada
 ├── results/                     <- saídas geradas automaticamente
-└── ├── ranking_scores.png
+└── ├── ranking_scores_yt.png
+    ├── ranking_scores_tw.png
+    ├── ratio.png
     ├── relatorio_plataformas.png
     ├── resultados.csv
     └── tabela_influencers.csv
@@ -67,9 +69,12 @@ Exemplo: Cellbit;https://www.youtube.com/@CellbitLives;https://www.twitch.tv/cel
 ## Execução
 
 ```bash
-cd src/
+cd code/
 python main.py                          # usa data/influencers.csv por padrão
 python main.py ../data/meu_arquivo.csv  # CSV customizado
+
+cd code/
+python charts.py # refaz os gráficos sem precisar coletar novos dados
 ```
 
 ---
@@ -87,8 +92,12 @@ Tabela com uma linha por criador contendo:
 | `tw_delta_medio` | Intervalo médio entre lives (dias)             |
 | `ratio_delta`*   | `Δt_yt / Δt_tw` - equilíbrio de cadência       |
 | `perfil`         | Classificação do criador (ver abaixo)          |
+| `flow`*          | `balance x fratio`* Fluxo de audiência          |
 
-*ratio>1 = mais presença na twitch, ratio<1 = mais presença no yt e ratio = 1 equilíbrio
+*ratio>1 = mais presença na twitch; ratio<1 = mais presença no yt; ratio = 1 equilíbrio
+* 0 < flow < 1 -> mais presença no yt; flow > 1 mais presença na tw; flow = 1 equilíbrio
+* balance = min(yt_normalizado, tw_normalizado) / max(yt_normalizado, tw_normalizado)   
+  fratio  = 1 / (1 + abs(ratio - 1))
 
 ### Perfis possíveis
 
@@ -101,8 +110,9 @@ Tabela com uma linha por criador contendo:
 
 ### Gráficos
 
-- **ranking_scores.png** - barras comparando score YT vs Twitch por criador
+- **ranking_scores_yt.png/ranking_scores_tw.png** - barras comparando score YT vs Twitch por criador
 - **relatorio_plataformas.png** - barras comparando a presença de criadores por plataforma e tipo de conteúdo
+- - **ratio.png** - barras comparando o fluxo por criador
 
 ---
 
