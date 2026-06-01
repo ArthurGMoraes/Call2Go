@@ -112,7 +112,7 @@ Tabela com uma linha por criador contendo:
 
 - **ranking_scores_yt.png/ranking_scores_tw.png** - barras comparando score YT vs Twitch por criador
 - **relatorio_plataformas.png** - barras comparando a presença de criadores por plataforma e tipo de conteúdo
-- - **ratio.png** - barras comparando o fluxo por criador
+- **ratio.png** - barras comparando o fluxo por criador
 
 ---
 
