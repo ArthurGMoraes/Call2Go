@@ -94,8 +94,8 @@ Tabela com uma linha por criador contendo:
 | `perfil`         | Classificação do criador (ver abaixo)          |
 | `flow`*          | `balance x fratio`* Fluxo de audiência          |
 
-*ratio>1 = mais presença na twitch; ratio<1 = mais presença no yt; ratio = 1 equilíbrio
-* 0 < flow < 1 -> mais presença no yt; flow > 1 mais presença na tw; flow = 1 equilíbrio
+* ratio>1 = mais presença na twitch; ratio<1 = mais presença no yt; ratio = 1 equilíbrio
+* 0 <= flow <= 1; quanto maior o valor de flow indica que há mais fluxo
 * balance = min(yt_normalizado, tw_normalizado) / max(yt_normalizado, tw_normalizado)   
   fratio  = 1 / (1 + abs(ratio - 1))
 
